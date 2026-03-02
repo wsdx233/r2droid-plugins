@@ -1,0 +1,19 @@
+{
+  "id": "r2mcp",
+  "name": "R2MCP Manager",
+  "version": "0.1.0",
+  "description": "Manage r2mcp install/start/stop with plugin page",
+  "author": "R2Droid Team",
+  "permissions": ["r2", "file.read", "file.write", "process"],
+  "entry": {
+    "script": "console.log('r2mcp loaded')",
+    "page": {
+      "type": "webview",
+      "path": "ui/index.html"
+    }
+  },
+  "ui": {
+    "showEnableToggle": false,
+    "showEnableStatus": false
+  }
+}

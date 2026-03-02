@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>R2MCP Manager</title>
+  <style>
+    /* Material Design 3 Dark Theme Tokens */
+    :root {
+      color-scheme: dark;
+      --md-sys-color-background: #111318;
+      --md-sys-color-surface: #1e2026;
+      --md-sys-color-surface-container: #292d36;
+      --md-sys-color-surface-container-high: #343843;
+      --md-sys-color-primary: #a8c7fa;
+      --md-sys-color-on-primary: #062e6f;
+      --md-sys-color-secondary-container: #44474e;
+      --md-sys-color-on-secondary-container: #e2e2e9;
+      --md-sys-color-error: #ffb4ab;
+      --md-sys-color-on-error: #690005;
+      --md-sys-color-success: #81c995;
+      --md-sys-color-on-success: #00391b;
+      --md-sys-color-on-surface: #e2e2e9;
+      --md-sys-color-on-surface-variant: #c4c6d0;
+      --md-sys-color-outline: #8e9199;
+
+      --font-family: "Google Sans", "Segoe UI", Roboto, -apple-system, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+
+      /* 非线性弹性动画曲线 */
+      --spring: cubic-bezier(0.2, 0.8, 0.2, 1.2);
+      --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-family);
+      color: var(--md-sys-color-on-surface);
+      background-color: var(--md-sys-color-background);
+      padding: 24px 16px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: slideUpFade 0.6s var(--ease-out) forwards;
+    }
+
+    @keyframes slideUpFade {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* MD3 卡片风格 */
+    .card {
+      background: var(--md-sys-color-surface);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s var(--ease-out);
+    }
+
+    /* 顶部头部区域 */
+    .header-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    /* 状态指示器 (Pill) */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: var(--md-sys-color-surface-container);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
+      transition: all 0.4s var(--spring);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--md-sys-color-outline);
+      transition: all 0.4s var(--spring);
+    }
+
+    /* 运行中状态 */
+    .status-pill:has(.dot.running) {
+      background: rgba(129, 201, 149, 0.1);
+      color: var(--md-sys-color-success);
+    }
+
+    .dot.running {
+      background: var(--md-sys-color-success);
+      box-shadow: 0 0 0 0 rgba(129, 201, 149, 0.4);
+      animation: ripple 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes ripple {
+      0% {
+        box-shadow: 0 0 0 0 rgba(129, 201, 149, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(129, 201, 149, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(129, 201, 149, 0);
+      }
+    }
+
+    /* 按钮组 */
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      /* MD3 Pill Button */
+      min-height: 48px;
+      /* 移动端最佳触控高度 */
+      padding: 0 24px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s var(--spring);
+      outline: none;
+    }
+
+    button:active {
+      transform: scale(0.92);
+      filter: brightness(0.9);
+    }
+
+    /* 各种按钮变体 */
+    button.primary {
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+    }
+
+    button.warn {
+      background: var(--md-sys-color-error);
+      color: var(--md-sys-color-on-error);
+    }
+
+    button.secondary {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+    }
+
+    /* 细节折叠面板 (收纳无意义的信息) */
+    details.tech-details {
+      margin-top: 20px;
+      background: var(--md-sys-color-surface-container);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s var(--ease-out);
+    }
+
+    details.tech-details summary {
+      padding: 14px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      user-select: none;
+    }
+
+    details.tech-details summary::before {
+      content: "▶";
+      font-size: 10px;
+      margin-right: 8px;
+      transition: transform 0.3s var(--spring);
+    }
+
+    details.tech-details[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    .tech-content {
+      padding: 0 16px 16px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--md-sys-color-outline);
+      line-height: 1.6;
+    }
+
+    /* 终端控制台 */
+    .console-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .console-header .tag {
+      font-size: 12px;
+      background: var(--md-sys-color-surface-container-high);
+      padding: 4px 10px;
+      border-radius: 8px;
+      color: var(--md-sys-color-primary);
+    }
+
+    pre {
+      margin: 0;
+      background: #0d0f14;
+      /* 比容器更深以凸显屏幕感 */
+      border-radius: 16px;
+      padding: 16px;
+      min-height: 200px;
+      max-height: 45vh;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--md-sys-color-on-surface-variant);
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* 优雅的滚动条 */
+    pre::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    pre::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    pre::-webkit-scrollbar-thumb {
+      background: var(--md-sys-color-surface-container-high);
+      border-radius: 10px;
+    }
+
+    pre::-webkit-scrollbar-thumb:hover {
+      background: var(--md-sys-color-outline);
+    }
+
+    /* 移动端细调 */
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+
+      .card {
+        padding: 20px;
+        border-radius: 20px;
+      }
+
+      .actions {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      button.primary,
+      button.warn {
+        grid-column: span 2;
+        /* 核心操作占据整行防误触 */
+      }
+
+      .console-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+    <!-- 头部与状态卡片 -->
+    <section class="card">
+      <div class="header-area">
+        <h1>R2MCP Proxy</h1>
+        <div class="status-pill">
+          <span id="dot" class="dot"></span>
+          <span id="statusText">状态：未知</span>
+        </div>
+      </div>
+
+      <!-- 将繁杂的内部执行参数收纳到折叠面板中 -->
+      <details class="tech-details">
+        <summary>运行参数详情</summary>
+        <div class="tech-content">
+          <div style="margin-bottom: 8px;">监听：0.0.0.0:8990 | 传输：streamable-http</div>
+          <div id="cmdView" style="color: #6a7180;">1) chmod +x ./data/mcp-proxy ./data/r2mcp
+            2) ./data/mcp-proxy --port 8990 --host 0.0.0.0 --transport streamable-http -- r2mcp</div>
+        </div>
+      </details>
+    </section>
+
+    <!-- 操作区域卡片 -->
+    <section class="card">
+      <div class="actions">
+        <button class="primary" onclick="startProxy()">启动代理</button>
+        <button class="warn" onclick="stopProxy()">停止代理</button>
+        <button class="secondary" onclick="refreshStatus()">刷新状态</button>
+        <button class="secondary" onclick="readLogs()">读取日志</button>
+        <button class="secondary" onclick="clearLogs()">清空日志</button>
+      </div>
+    </section>
+
+    <!-- 终端日志卡片 -->
+    <section class="card">
+      <div class="console-header">
+        <span>Terminal Logs</span>
+        <span class="tag" id="lastAction">Ready</span>
+      </div>
+      <pre id="out">Ready</pre>
+    </section>
+  </div>
+
+  <!-- JavaScript 保持完全不变 -->
+  <script>
+    const SESSION_ID = 'r2mcp-proxy';
+    const PREPARE_SESSION_ID = 'r2mcp-prepare';
+    const PREPARE_CMD = 'chmod +x ./data/mcp-proxy ./data/r2mcp';
+    const START_CMD = './data/mcp-proxy --port 8990 --host 0.0.0.0 --transport streamable-http -- r2mcp';
+
+    function now() {
+      return new Date().toLocaleTimeString();
+    }
+
+    function setLastAction(text) {
+      document.getElementById('lastAction').textContent = `[${now()}] ${text}`;
+    }
+
+    function setStatus(running) {
+      const dot = document.getElementById('dot');
+      const statusText = document.getElementById('statusText');
+      if (running) {
+        dot.classList.add('running');
+        statusText.textContent = '状态：运行中';
+      } else {
+        dot.classList.remove('running');
+        statusText.textContent = '状态：未运行';
+      }
+    }
+
+    function appendLog(text) {
+      const out = document.getElementById('out');
+      const line = (text == null || text === '') ? '(empty)' : String(text);
+      if (out.textContent === 'Ready') {
+        out.textContent = line;
+      } else {
+        out.textContent += '\n' + line;
+      }
+      out.scrollTop = out.scrollHeight;
+    }
+
+    function clearLogs() {
+      document.getElementById('out').textContent = '';
+      setLastAction('日志已清空');
+    }
+
+    function host() {
+      if (!window.R2PluginHost) {
+        throw new Error('R2PluginHost is not available');
+      }
+      return window.R2PluginHost;
+    }
+
+    function safeCall(fn) {
+      try {
+        return fn();
+      } catch (e) {
+        appendLog('Error: ' + e);
+        setLastAction('执行失败');
+        return null;
+      }
+    }
+
+    function refreshStatus() {
+      safeCall(() => {
+        const alive = host().procAlive(SESSION_ID);
+        const running = String(alive).trim() === 'true';
+        setStatus(running);
+        setLastAction('状态已刷新：' + (running ? '运行中' : '未运行'));
+      });
+    }
+
+    function startProxy() {
+      safeCall(() => {
+        appendLog('--- 启动流程开始 ---');
+
+        const stopRet = host().procStop(SESSION_ID);
+        appendLog('[pre-stop] ' + stopRet);
+
+        const prepareRet = host().procStart(PREPARE_SESSION_ID, PREPARE_CMD);
+        appendLog('[prepare-start] ' + prepareRet);
+        setLastAction('执行 chmod 权限准备中');
+
+        setTimeout(() => {
+          safeCall(() => {
+            const prepareLog = host().procRead(PREPARE_SESSION_ID, 120, 200);
+            if (prepareLog) {
+              appendLog('[prepare-log]\n' + prepareLog);
+            }
+            appendLog('[prepare-stop] ' + host().procStop(PREPARE_SESSION_ID));
+
+            const ret = host().procStart(SESSION_ID, START_CMD);
+            appendLog('[start] ' + ret);
+            setLastAction('启动指令已发送');
+            refreshStatus();
+            setTimeout(readLogs, 150);
+          });
+        }, 150);
+      });
+    }
+
+    function stopProxy() {
+      safeCall(() => {
+        const ret = host().procStop(SESSION_ID);
+        appendLog('[stop] ' + ret);
+        setLastAction('停止指令已发送');
+        refreshStatus();
+      });
+    }
+
+    function readLogs() {
+      safeCall(() => {
+        const text = host().procRead(SESSION_ID, 50, 400);
+        appendLog(text || '(no new logs)');
+        setLastAction('日志已读取');
+      });
+    }
+
+    refreshStatus();
+  </script>
+
+</body>
+
+</html>

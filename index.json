@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-03-02T00:00:00Z",
+  "plugins": [
+    {
+      "id": "r2mcp",
+      "name": "R2MCP Manager",
+      "version": "0.1.0",
+      "description": "run r2mcp and proxy it to httpstream",
+      "author": "Wsdx233",
+      "downloadUrl": "https://github.com/wsdx233/r2droid-plugins/releases/download/v1.0.0/r2mcp.zip",
+      "sha256": "3f97f201a766999f0b6bdf093502d537ec65f7976f8210f98ad6700c8bc44709",
+      "manifestPath": "manifest.json"
+    }
+  ]
+}
