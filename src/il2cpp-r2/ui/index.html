@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Il2Cpp to R2 Script</title>
+  <style>
+    /* Material Design 3 Dark Theme Tokens */
+    :root {
+      color-scheme: dark;
+      --md-sys-color-background: #111318;
+      --md-sys-color-surface: #1e2026;
+      --md-sys-color-surface-container: #292d36;
+      --md-sys-color-surface-container-high: #343843;
+      --md-sys-color-primary: #a8c7fa;
+      --md-sys-color-on-primary: #062e6f;
+      --md-sys-color-secondary-container: #44474e;
+      --md-sys-color-on-secondary-container: #e2e2e9;
+      --md-sys-color-error: #ffb4ab;
+      --md-sys-color-on-error: #690005;
+      --md-sys-color-success: #81c995;
+      --md-sys-color-on-success: #00391b;
+      --md-sys-color-on-surface: #e2e2e9;
+      --md-sys-color-on-surface-variant: #c4c6d0;
+      --md-sys-color-outline: #8e9199;
+
+      --font-family: "Google Sans", "Segoe UI", Roboto, -apple-system, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+
+      --spring: cubic-bezier(0.2, 0.8, 0.2, 1.2);
+      --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0; min-height: 100vh;
+      font-family: var(--font-family);
+      color: var(--md-sys-color-on-surface);
+      background-color: var(--md-sys-color-background);
+      padding: 24px 16px;
+      display: flex; justify-content: center;
+    }
+
+    .wrap {
+      width: 100%; max-width: 680px;
+      display: flex; flex-direction: column; gap: 16px;
+      animation: slideUpFade 0.6s var(--ease-out) forwards;
+    }
+
+    @keyframes slideUpFade {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--md-sys-color-surface);
+      border-radius: 24px; padding: 24px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-area {
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    }
+
+    h1 { margin: 0; font-size: 22px; font-weight: 600; }
+    h2 { margin: 0 0 12px 0; font-size: 16px; font-weight: 500; color: var(--md-sys-color-primary); }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 8px 16px; border-radius: 999px;
+      background: var(--md-sys-color-surface-container);
+      font-size: 14px; font-weight: 500;
+    }
+
+    .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--md-sys-color-outline); transition: all 0.4s var(--spring);
+    }
+
+    .status-pill:has(.dot.running) { background: rgba(129, 201, 149, 0.1); color: var(--md-sys-color-success); }
+    .dot.running {
+      background: var(--md-sys-color-success);
+      box-shadow: 0 0 0 0 rgba(129, 201, 149, 0.4);
+      animation: ripple 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes ripple {
+      0% { box-shadow: 0 0 0 0 rgba(129, 201, 149, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(129, 201, 149, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(129, 201, 149, 0); }
+    }
+
+    /* 表单输入区域 */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 14px; margin-bottom: 8px; color: var(--md-sys-color-on-surface-variant); }
+    input[type="text"] {
+      width: 100%; padding: 12px 16px;
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: 12px; color: var(--md-sys-color-on-surface);
+      font-family: var(--font-mono); font-size: 13px;
+      outline: none; transition: border-color 0.3s;
+    }
+    input[type="text"]:focus { border-color: var(--md-sys-color-primary); }
+
+    /* 复选框网格 */
+    .checkbox-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;
+    }
+    .checkbox-item {
+      display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: 18px; height: 18px; accent-color: var(--md-sys-color-primary); cursor: pointer;
+    }
+
+    /* 按钮组 */
+    .actions { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 20px;}
+    button {
+      border: none; border-radius: 999px; min-height: 48px; padding: 0 24px;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: all 0.3s var(--spring);
+    }
+    button:active { transform: scale(0.96); filter: brightness(0.9); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    button.primary { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+
+    /* 终端控制台 */
+    .console-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px; font-size: 14px; color: var(--md-sys-color-on-surface-variant);
+    }
+    .console-header .tag {
+      font-size: 12px; background: var(--md-sys-color-surface-container-high);
+      padding: 4px 10px; border-radius: 8px; color: var(--md-sys-color-primary);
+    }
+    pre {
+      margin: 0; background: #0d0f14; border-radius: 16px; padding: 16px;
+      min-height: 200px; max-height: 40vh; overflow-y: auto;
+      font-family: var(--font-mono); font-size: 13px; line-height: 1.6;
+      color: var(--md-sys-color-on-surface-variant);
+      white-space: pre-wrap; word-break: break-word;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    pre::-webkit-scrollbar { width: 6px; }
+    pre::-webkit-scrollbar-thumb { background: var(--md-sys-color-surface-container-high); border-radius: 10px; }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <section class="card">
+    <div class="header-area">
+      <h1>Il2Cpp R2 Script Generator</h1>
+      <div class="status-pill">
+        <span id="dot" class="dot"></span>
+        <span id="statusText">等待输入</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>1. 文件路径配置</h2>
+    <div class="form-group">
+      <label>外部 SO 文件绝对路径 (libil2cpp.so)</label>
+      <input type="text" id="soPath" placeholder="/sdcard/Download/libil2cpp.so" />
+    </div>
+    <div class="form-group">
+      <label>Global-Metadata 文件绝对路径 (global-metadata.dat)</label>
+      <input type="text" id="metaPath" placeholder="/sdcard/Download/global-metadata.dat" />
+    </div>
+
+    <h2 style="margin-top: 24px;">2. 提取脚本选项 (R2 Flags & Comments)</h2>
+    <div class="checkbox-grid">
+      <label class="checkbox-item"><input type="checkbox" id="chk_ScriptMethod" checked> ScriptMethod</label>
+      <label class="checkbox-item"><input type="checkbox" id="chk_ScriptString" checked> ScriptString</label>
+      <label class="checkbox-item"><input type="checkbox" id="chk_ScriptMetadata" checked> ScriptMetadata</label>
+      <label class="checkbox-item"><input type="checkbox" id="chk_ScriptMetadataMethod" checked> MetadataMethod</label>
+      <label class="checkbox-item"><input type="checkbox" id="chk_Addresses" checked> Addresses</label>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="btnRun" onclick="startConversion()">执行提取与转换</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="console-header">
+      <span>执行日志 (Logs)</span>
+      <span class="tag" id="lastAction">Ready</span>
+    </div>
+    <pre id="out">Ready to convert...</pre>
+  </section>
+</div>
+
+<script>
+  const SESSION_ID = 'il2cpp-dumper-session';
+  let checkInterval = null;
+
+  function now() { return new Date().toLocaleTimeString(); }
+
+  function setLastAction(text) {
+    document.getElementById('lastAction').textContent = `[${now()}] ${text}`;
+  }
+
+  function setStatus(running, text) {
+    const dot = document.getElementById('dot');
+    const statusText = document.getElementById('statusText');
+    if (running) {
+      dot.classList.add('running');
+      statusText.textContent = text || '转换中...';
+      document.getElementById('btnRun').disabled = true;
+    } else {
+      dot.classList.remove('running');
+      statusText.textContent = text || '就绪';
+      document.getElementById('btnRun').disabled = false;
+    }
+  }
+
+  function appendLog(text) {
+    const out = document.getElementById('out');
+    if (out.textContent.includes('Ready to convert...')) out.textContent = '';
+    out.textContent += text + '\n';
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function host() {
+    if (!window.R2PluginHost) throw new Error('R2PluginHost is not available');
+    return window.R2PluginHost;
+  }
+
+  function safeCall(fn) {
+    try { return fn(); }
+    catch (e) { appendLog('[-] Error: ' + e); setLastAction('发生异常'); return null; }
+  }
+
+  // 格式化 R2 兼容的名称
+  function sanitize(str) {
+    if (!str) return 'unknown';
+    return str.replace(/[^a-zA-Z0-9_]/g, '_');
+  }
+
+  // JSON 转 R2 脚本逻辑
+  function generateR2Script(jsonStr, config) {
+    let data;
+    try { data = JSON.parse(jsonStr); } catch(e) { throw new Error("解析 script.json 失败: " + e.message); }
+
+    let script = ["# Il2Cpp Dumper R2 Script", "e asm.comments=true", ""];
+
+    if(config.ScriptMethod && data.ScriptMethod) {
+      script.push("# --- ScriptMethod (Functions) ---");
+      data.ScriptMethod.forEach(m => {
+        let addr = "0x" + m.Address.toString(16);
+        let name = sanitize(m.Name);
+        let sig = m.Signature ? m.Signature.replace(/"/g, '\\"') : "Method";
+        script.push(`af ${addr}`);
+        script.push(`afn ${name} ${addr}`);
+        script.push(`f sym.method.${name} @ ${addr}`);
+        script.push(`CC "${sig}" @ ${addr}`);
+      });
+      script.push("");
+    }
+
+    if(config.ScriptString && data.ScriptString) {
+      script.push("# --- ScriptString (Strings) ---");
+      data.ScriptString.forEach(s => {
+        let addr = "0x" + s.Address.toString(16);
+        let val = s.Value ? s.Value.replace(/[^a-zA-Z0-9_ -=+!@#$%^&*()]/g, '_') : "str";
+        script.push(`CC "str:${val}" @ ${addr}`);
+      });
+      script.push("");
+    }
+
+    if(config.ScriptMetadata && data.ScriptMetadata) {
+      script.push("# --- ScriptMetadata ---");
+      data.ScriptMetadata.forEach(m => {
+        let addr = "0x" + m.Address.toString(16);
+        let name = sanitize(m.Name);
+        script.push(`f sym.meta.${name} @ ${addr}`);
+      });
+      script.push("");
+    }
+
+    if(config.ScriptMetadataMethod && data.ScriptMetadataMethod) {
+      script.push("# --- ScriptMetadataMethod ---");
+      data.ScriptMetadataMethod.forEach(m => {
+        if(m.MethodAddress > 0) {
+           let methodAddr = "0x" + m.MethodAddress.toString(16);
+           let name = sanitize(m.Name);
+           script.push(`f sym.meta_func.${name} @ ${methodAddr}`);
+        }
+      });
+      script.push("");
+    }
+
+    if(config.Addresses && data.Addresses) {
+      script.push("# --- Addresses ---");
+      data.Addresses.forEach(a => {
+        let addr = "0x" + a.toString(16);
+        script.push(`f sym.il2cpp_ptr_${addr} @ ${addr}`);
+      });
+      script.push("");
+    }
+
+    return script.join('\n');
+  }
+
+  function startConversion() {
+      safeCall(() => {
+        const soPath = document.getElementById('soPath').value.trim();
+        const metaPath = document.getElementById('metaPath').value.trim();
+
+        if (!soPath || !metaPath) {
+          appendLog('[!] 错误: 请输入完整的 SO 和 Metadata 文件路径。');
+          return;
+        }
+
+        const config = {
+          ScriptMethod: document.getElementById('chk_ScriptMethod').checked,
+          ScriptString: document.getElementById('chk_ScriptString').checked,
+          ScriptMetadata: document.getElementById('chk_ScriptMetadata').checked,
+          ScriptMetadataMethod: document.getElementById('chk_ScriptMetadataMethod').checked,
+          Addresses: document.getElementById('chk_Addresses').checked
+        };
+
+        // 清空旧日志
+        document.getElementById('out').textContent = '';
+        appendLog('--- 开始执行 Il2Cpp 提取与转换 ---');
+        setStatus(true, '环境准备中...');
+
+        // 关键修复：直接动态生成一个 Shell 脚本文件，完全避开 ProcessBuilder 的引号解析问题
+        const shScriptCode = `#!/system/bin/sh
+# 切换到执行目录 (procStart 默认在插件根目录，我们需要进 data)
+cd ./data || { echo "[-] 无法进入 data 目录"; exit 1; }
+
+echo "[*] 清理历史文件..."
+rm -f script.json
+mkdir -p result
+
+echo "[*] 正在复制目标文件..."
+cp "$1" ./libil2cpp.so || { echo "[-] 复制 libil2cpp.so 失败"; exit 1; }
+cp "$2" ./global-metadata.dat || { echo "[-] 复制 global-metadata.dat 失败"; exit 1; }
+
+echo "[*] 赋予执行权限..."
+chmod +x ./Il2CppDumper
+
+echo "[*] 正在启动 Il2CppDumper (这可能需要几秒钟)..."
+./Il2CppDumper ./libil2cpp.so ./global-metadata.dat .
+echo "[*] Dumper 进程结束, 退出码: $?"
+`;
+
+        // 将脚本写入到 data/run_dumper.sh (host().writeData 默认以 data/ 为根目录)
+        host().writeData('run_dumper.sh', shScriptCode);
+
+        // 确保先停止之前的遗留进程
+        host().procStop(SESSION_ID);
+
+        // 执行这个脚本，通过双引号传递路径参数，ProcessBuilder 能完美处理这种结构
+        const execCmd = `sh ./data/run_dumper.sh "${soPath}" "${metaPath}"`;
+        appendLog('[*] 启动执行: ' + execCmd);
+
+        host().procStart(SESSION_ID, execCmd);
+
+        setLastAction('等待 Il2CppDumper 执行完毕');
+        setStatus(true, 'Dumper 运行中...');
+
+        let attempts = 0;
+        const maxAttempts = 60; // 60秒超时
+
+        if (checkInterval) clearInterval(checkInterval);
+
+        checkInterval = setInterval(() => {
+          safeCall(() => {
+            attempts++;
+
+            // 实时读取终端输出
+            const dumperLog = host().procRead(SESSION_ID, 100, 200);
+            if(dumperLog && dumperLog.trim() !== '') {
+               appendLog(dumperLog);
+            }
+
+            // 尝试读取生成的 script.json
+            let jsonContent = null;
+            try {
+              jsonContent = host().readText('data/script.json');
+            } catch(e) { /* 文件尚未生成 */ }
+
+            // 检查底层进程是否已死
+            const isAliveStr = host().procAlive(SESSION_ID);
+            const isAlive = String(isAliveStr).trim() === 'true';
+
+            if (jsonContent && jsonContent.length > 50) {
+              clearInterval(checkInterval);
+              appendLog('[+] 检测到 script.json 成功生成，开始解析...');
+              setStatus(true, '解析转换中...');
+
+              host().procStop(SESSION_ID);
+
+              try {
+                const r2Script = generateR2Script(jsonContent, config);
+                host().writeData('result/il2cpp.r2', r2Script);
+
+                const dataDirAbs = host().dataDir();
+                const absoluteOutputPath = dataDirAbs + '/result/il2cpp.r2';
+
+                appendLog(`\n[===================================]`);
+                appendLog(`[+] 转换完毕!`);
+                appendLog(`[+] 脚本绝对路径:\n${absoluteOutputPath}`);
+                appendLog(`\n[*] 使用说明: 在 R2Droid 终端或下方命令框中输入以下命令加载:`);
+                appendLog(`. ${absoluteOutputPath}`);
+                appendLog(`[===================================]`);
+
+                setStatus(false, '转换成功');
+                setLastAction('执行完毕');
+
+              } catch(e) {
+                appendLog('[-] 转换失败: ' + e.message);
+                setStatus(false, '转换失败');
+                setLastAction('发生异常');
+              }
+            } else if (!isAlive && attempts > 3) {
+              // 进程死掉且没出文件
+              clearInterval(checkInterval);
+              appendLog('[-] 错误: 进程已退出，但未找到生成的 script.json，请检查上方日志是否报错。');
+              setStatus(false, '执行失败');
+              setLastAction('执行异常');
+            } else if (attempts >= maxAttempts) {
+              // 超时
+              clearInterval(checkInterval);
+              appendLog('[-] 错误: 提取超时 (60s)，未能生成 script.json。');
+              host().procStop(SESSION_ID);
+              setStatus(false, '超时失败');
+              setLastAction('执行超时');
+            }
+          });
+        }, 1000);
+
+      });
+    }
+</script>
+
+</body>
+
+</html>

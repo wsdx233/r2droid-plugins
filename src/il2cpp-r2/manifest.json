@@ -1,0 +1,19 @@
+{
+  "id": "il2cpp-r2",
+  "name": "Il2Cpp to R2 Script",
+  "version": "0.1.0",
+  "description": "Run Il2CppDumper and convert script.json to radare2 script",
+  "author": "R2Droid Team",
+  "permissions": ["r2", "file.read", "file.write", "process"],
+  "entry": {
+    "script": "console.log('il2cpp-r2 loaded')",
+    "page": {
+      "type": "webview",
+      "path": "ui/index.html"
+    }
+  },
+  "ui": {
+    "showEnableToggle": false,
+    "showEnableStatus": false
+  }
+}
