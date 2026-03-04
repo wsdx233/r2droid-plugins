@@ -11,6 +11,16 @@
       "downloadUrl": "https://github.com/wsdx233/r2droid-plugins/releases/download/v1.0.0/r2mcp.zip",
       "sha256": "3f97f201a766999f0b6bdf093502d537ec65f7976f8210f98ad6700c8bc44709",
       "manifestPath": "manifest.json"
+    },
+    {
+      "id": "il2cpp-r2",
+      "name": "R2 Il2CPP Dumper",
+      "version": "0.1.0",
+      "description": "dump il2cpp to r2 script",
+      "author": "Wsdx233",
+      "downloadUrl": "https://github.com/wsdx233/r2droid-plugins/releases/download/v1.0.0/il2cpp-r2.zip",
+      "sha256": "921fa18484ccdb345bbe45b7930e0b0ff5e20b2b7fcf6c04b24c5f4cb1ca5893",
+      "manifestPath": "manifest.json"
     }
   ]
 }

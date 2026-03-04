@@ -32,54 +32,94 @@
       --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
     body {
-      margin: 0; min-height: 100vh;
+      margin: 0;
+      min-height: 100vh;
       font-family: var(--font-family);
       color: var(--md-sys-color-on-surface);
       background-color: var(--md-sys-color-background);
       padding: 24px 16px;
-      display: flex; justify-content: center;
+      display: flex;
+      justify-content: center;
     }
 
     .wrap {
-      width: 100%; max-width: 680px;
-      display: flex; flex-direction: column; gap: 16px;
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
       animation: slideUpFade 0.6s var(--ease-out) forwards;
     }
 
     @keyframes slideUpFade {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .card {
       background: var(--md-sys-color-surface);
-      border-radius: 24px; padding: 24px;
+      border-radius: 24px;
+      padding: 24px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .header-area {
-      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
     }
 
-    h1 { margin: 0; font-size: 22px; font-weight: 600; }
-    h2 { margin: 0 0 12px 0; font-size: 16px; font-weight: 500; color: var(--md-sys-color-primary); }
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    h2 {
+      margin: 0 0 12px 0;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--md-sys-color-primary);
+    }
 
     .status-pill {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 8px 16px; border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      border-radius: 999px;
       background: var(--md-sys-color-surface-container);
-      font-size: 14px; font-weight: 500;
+      font-size: 14px;
+      font-weight: 500;
     }
 
     .dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: var(--md-sys-color-outline); transition: all 0.4s var(--spring);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--md-sys-color-outline);
+      transition: all 0.4s var(--spring);
     }
 
-    .status-pill:has(.dot.running) { background: rgba(129, 201, 149, 0.1); color: var(--md-sys-color-success); }
+    .status-pill:has(.dot.running) {
+      background: rgba(129, 201, 149, 0.1);
+      color: var(--md-sys-color-success);
+    }
+
     .dot.running {
       background: var(--md-sys-color-success);
       box-shadow: 0 0 0 0 rgba(129, 201, 149, 0.4);
@@ -87,228 +127,312 @@
     }
 
     @keyframes ripple {
-      0% { box-shadow: 0 0 0 0 rgba(129, 201, 149, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(129, 201, 149, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(129, 201, 149, 0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(129, 201, 149, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(129, 201, 149, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(129, 201, 149, 0);
+      }
     }
 
     /* 表单输入区域 */
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 14px; margin-bottom: 8px; color: var(--md-sys-color-on-surface-variant); }
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
     input[type="text"] {
-      width: 100%; padding: 12px 16px;
+      width: 100%;
+      padding: 12px 16px;
       background: var(--md-sys-color-surface-container);
       border: 1px solid var(--md-sys-color-outline);
-      border-radius: 12px; color: var(--md-sys-color-on-surface);
-      font-family: var(--font-mono); font-size: 13px;
-      outline: none; transition: border-color 0.3s;
+      border-radius: 12px;
+      color: var(--md-sys-color-on-surface);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.3s;
     }
-    input[type="text"]:focus { border-color: var(--md-sys-color-primary); }
+
+    input[type="text"]:focus {
+      border-color: var(--md-sys-color-primary);
+    }
 
     /* 复选框网格 */
     .checkbox-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
     }
+
     .checkbox-item {
-      display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      cursor: pointer;
     }
+
     .checkbox-item input[type="checkbox"] {
-      width: 18px; height: 18px; accent-color: var(--md-sys-color-primary); cursor: pointer;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--md-sys-color-primary);
+      cursor: pointer;
     }
 
     /* 按钮组 */
-    .actions { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 20px;}
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
     button {
-      border: none; border-radius: 999px; min-height: 48px; padding: 0 24px;
-      font-size: 15px; font-weight: 600; cursor: pointer;
+      border: none;
+      border-radius: 999px;
+      min-height: 48px;
+      padding: 0 24px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
       transition: all 0.3s var(--spring);
     }
-    button:active { transform: scale(0.96); filter: brightness(0.9); }
-    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-    button.primary { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+
+    button:active {
+      transform: scale(0.96);
+      filter: brightness(0.9);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    button.primary {
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+    }
 
     /* 终端控制台 */
     .console-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 12px; font-size: 14px; color: var(--md-sys-color-on-surface-variant);
-    }
-    .console-header .tag {
-      font-size: 12px; background: var(--md-sys-color-surface-container-high);
-      padding: 4px 10px; border-radius: 8px; color: var(--md-sys-color-primary);
-    }
-    pre {
-      margin: 0; background: #0d0f14; border-radius: 16px; padding: 16px;
-      min-height: 200px; max-height: 40vh; overflow-y: auto;
-      font-family: var(--font-mono); font-size: 13px; line-height: 1.6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 14px;
       color: var(--md-sys-color-on-surface-variant);
-      white-space: pre-wrap; word-break: break-word;
+    }
+
+    .console-header .tag {
+      font-size: 12px;
+      background: var(--md-sys-color-surface-container-high);
+      padding: 4px 10px;
+      border-radius: 8px;
+      color: var(--md-sys-color-primary);
+    }
+
+    pre {
+      margin: 0;
+      background: #0d0f14;
+      border-radius: 16px;
+      padding: 16px;
+      min-height: 200px;
+      max-height: 40vh;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--md-sys-color-on-surface-variant);
+      white-space: pre-wrap;
+      word-break: break-word;
       border: 1px solid rgba(255, 255, 255, 0.05);
     }
-    pre::-webkit-scrollbar { width: 6px; }
-    pre::-webkit-scrollbar-thumb { background: var(--md-sys-color-surface-container-high); border-radius: 10px; }
+
+    pre::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    pre::-webkit-scrollbar-thumb {
+      background: var(--md-sys-color-surface-container-high);
+      border-radius: 10px;
+    }
   </style>
 </head>
 
 <body>
-<div class="wrap">
+  <div class="wrap">
 
-  <section class="card">
-    <div class="header-area">
-      <h1>Il2Cpp R2 Script Generator</h1>
-      <div class="status-pill">
-        <span id="dot" class="dot"></span>
-        <span id="statusText">等待输入</span>
+    <section class="card">
+      <div class="header-area">
+        <h1>Il2Cpp R2 Script Generator</h1>
+        <div class="status-pill">
+          <span id="dot" class="dot"></span>
+          <span id="statusText">等待输入</span>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="card">
-    <h2>1. 文件路径配置</h2>
-    <div class="form-group">
-      <label>外部 SO 文件绝对路径 (libil2cpp.so)</label>
-      <input type="text" id="soPath" placeholder="/sdcard/Download/libil2cpp.so" />
-    </div>
-    <div class="form-group">
-      <label>Global-Metadata 文件绝对路径 (global-metadata.dat)</label>
-      <input type="text" id="metaPath" placeholder="/sdcard/Download/global-metadata.dat" />
-    </div>
+    <section class="card">
+      <h2>1. 文件路径配置</h2>
+      <div class="form-group">
+        <label>外部 SO 文件绝对路径 (libil2cpp.so)</label>
+        <input type="text" id="soPath" placeholder="/sdcard/Download/libil2cpp.so" />
+      </div>
+      <div class="form-group">
+        <label>Global-Metadata 文件绝对路径 (global-metadata.dat)</label>
+        <input type="text" id="metaPath" placeholder="/sdcard/Download/global-metadata.dat" />
+      </div>
 
-    <h2 style="margin-top: 24px;">2. 提取脚本选项 (R2 Flags & Comments)</h2>
-    <div class="checkbox-grid">
-      <label class="checkbox-item"><input type="checkbox" id="chk_ScriptMethod" checked> ScriptMethod</label>
-      <label class="checkbox-item"><input type="checkbox" id="chk_ScriptString" checked> ScriptString</label>
-      <label class="checkbox-item"><input type="checkbox" id="chk_ScriptMetadata" checked> ScriptMetadata</label>
-      <label class="checkbox-item"><input type="checkbox" id="chk_ScriptMetadataMethod" checked> MetadataMethod</label>
-      <label class="checkbox-item"><input type="checkbox" id="chk_Addresses" checked> Addresses</label>
-    </div>
+      <h2 style="margin-top: 24px;">2. 提取脚本选项 (R2 Flags & Comments)</h2>
+      <div class="checkbox-grid">
+        <label class="checkbox-item"><input type="checkbox" id="chk_ScriptMethod" checked> ScriptMethod</label>
+        <label class="checkbox-item"><input type="checkbox" id="chk_ScriptString" checked> ScriptString</label>
+        <label class="checkbox-item"><input type="checkbox" id="chk_ScriptMetadata" checked> ScriptMetadata</label>
+        <label class="checkbox-item"><input type="checkbox" id="chk_ScriptMetadataMethod" checked>
+          MetadataMethod</label>
+        <label class="checkbox-item"><input type="checkbox" id="chk_Addresses" checked> Addresses</label>
+      </div>
 
-    <div class="actions">
-      <button class="primary" id="btnRun" onclick="startConversion()">执行提取与转换</button>
-    </div>
-  </section>
+      <div class="actions">
+        <button class="primary" id="btnRun" onclick="startConversion()">执行提取与转换</button>
+      </div>
+    </section>
 
-  <section class="card">
-    <div class="console-header">
-      <span>执行日志 (Logs)</span>
-      <span class="tag" id="lastAction">Ready</span>
-    </div>
-    <pre id="out">Ready to convert...</pre>
-  </section>
-</div>
+    <section class="card">
+      <div class="console-header">
+        <span>执行日志 (Logs)</span>
+        <span class="tag" id="lastAction">Ready</span>
+      </div>
+      <pre id="out">Ready to convert...</pre>
+    </section>
+  </div>
 
-<script>
-  const SESSION_ID = 'il2cpp-dumper-session';
-  let checkInterval = null;
+  <script>
+    const SESSION_ID = 'il2cpp-dumper-session';
+    let checkInterval = null;
 
-  function now() { return new Date().toLocaleTimeString(); }
+    function now() { return new Date().toLocaleTimeString(); }
 
-  function setLastAction(text) {
-    document.getElementById('lastAction').textContent = `[${now()}] ${text}`;
-  }
-
-  function setStatus(running, text) {
-    const dot = document.getElementById('dot');
-    const statusText = document.getElementById('statusText');
-    if (running) {
-      dot.classList.add('running');
-      statusText.textContent = text || '转换中...';
-      document.getElementById('btnRun').disabled = true;
-    } else {
-      dot.classList.remove('running');
-      statusText.textContent = text || '就绪';
-      document.getElementById('btnRun').disabled = false;
-    }
-  }
-
-  function appendLog(text) {
-    const out = document.getElementById('out');
-    if (out.textContent.includes('Ready to convert...')) out.textContent = '';
-    out.textContent += text + '\n';
-    out.scrollTop = out.scrollHeight;
-  }
-
-  function host() {
-    if (!window.R2PluginHost) throw new Error('R2PluginHost is not available');
-    return window.R2PluginHost;
-  }
-
-  function safeCall(fn) {
-    try { return fn(); }
-    catch (e) { appendLog('[-] Error: ' + e); setLastAction('发生异常'); return null; }
-  }
-
-  // 格式化 R2 兼容的名称
-  function sanitize(str) {
-    if (!str) return 'unknown';
-    return str.replace(/[^a-zA-Z0-9_]/g, '_');
-  }
-
-  // JSON 转 R2 脚本逻辑
-  function generateR2Script(jsonStr, config) {
-    let data;
-    try { data = JSON.parse(jsonStr); } catch(e) { throw new Error("解析 script.json 失败: " + e.message); }
-
-    let script = ["# Il2Cpp Dumper R2 Script", "e asm.comments=true", ""];
-
-    if(config.ScriptMethod && data.ScriptMethod) {
-      script.push("# --- ScriptMethod (Functions) ---");
-      data.ScriptMethod.forEach(m => {
-        let addr = "0x" + m.Address.toString(16);
-        let name = sanitize(m.Name);
-        let sig = m.Signature ? m.Signature.replace(/"/g, '\\"') : "Method";
-        script.push(`af ${addr}`);
-        script.push(`afn ${name} ${addr}`);
-        script.push(`f sym.method.${name} @ ${addr}`);
-        script.push(`CC "${sig}" @ ${addr}`);
-      });
-      script.push("");
+    function setLastAction(text) {
+      document.getElementById('lastAction').textContent = `[${now()}] ${text}`;
     }
 
-    if(config.ScriptString && data.ScriptString) {
-      script.push("# --- ScriptString (Strings) ---");
-      data.ScriptString.forEach(s => {
-        let addr = "0x" + s.Address.toString(16);
-        let val = s.Value ? s.Value.replace(/[^a-zA-Z0-9_ -=+!@#$%^&*()]/g, '_') : "str";
-        script.push(`CC "str:${val}" @ ${addr}`);
-      });
-      script.push("");
+    function setStatus(running, text) {
+      const dot = document.getElementById('dot');
+      const statusText = document.getElementById('statusText');
+      if (running) {
+        dot.classList.add('running');
+        statusText.textContent = text || '转换中...';
+        document.getElementById('btnRun').disabled = true;
+      } else {
+        dot.classList.remove('running');
+        statusText.textContent = text || '就绪';
+        document.getElementById('btnRun').disabled = false;
+      }
     }
 
-    if(config.ScriptMetadata && data.ScriptMetadata) {
-      script.push("# --- ScriptMetadata ---");
-      data.ScriptMetadata.forEach(m => {
-        let addr = "0x" + m.Address.toString(16);
-        let name = sanitize(m.Name);
-        script.push(`f sym.meta.${name} @ ${addr}`);
-      });
-      script.push("");
+    function appendLog(text) {
+      const out = document.getElementById('out');
+      if (out.textContent.includes('Ready to convert...')) out.textContent = '';
+      out.textContent += text + '\n';
+      out.scrollTop = out.scrollHeight;
     }
 
-    if(config.ScriptMetadataMethod && data.ScriptMetadataMethod) {
-      script.push("# --- ScriptMetadataMethod ---");
-      data.ScriptMetadataMethod.forEach(m => {
-        if(m.MethodAddress > 0) {
-           let methodAddr = "0x" + m.MethodAddress.toString(16);
-           let name = sanitize(m.Name);
-           script.push(`f sym.meta_func.${name} @ ${methodAddr}`);
-        }
-      });
-      script.push("");
+    function host() {
+      if (!window.R2PluginHost) throw new Error('R2PluginHost is not available');
+      return window.R2PluginHost;
     }
 
-    if(config.Addresses && data.Addresses) {
-      script.push("# --- Addresses ---");
-      data.Addresses.forEach(a => {
-        let addr = "0x" + a.toString(16);
-        script.push(`f sym.il2cpp_ptr_${addr} @ ${addr}`);
-      });
-      script.push("");
+    function safeCall(fn) {
+      try { return fn(); }
+      catch (e) { appendLog('[-] Error: ' + e); setLastAction('发生异常'); return null; }
     }
 
-    return script.join('\n');
-  }
+    // 格式化 R2 兼容的名称
+    function sanitize(str) {
+      if (!str) return 'unknown';
+      return str.replace(/[^a-zA-Z0-9_]/g, '_');
+    }
 
-  function startConversion() {
+    // JSON 转 R2 脚本逻辑
+    function generateR2Script(jsonStr, config) {
+      let data;
+      try { data = JSON.parse(jsonStr); } catch (e) { throw new Error("解析 script.json 失败: " + e.message); }
+
+      let script = ["# Il2Cpp Dumper R2 Script", "e asm.comments=true", ""];
+
+      if (config.ScriptMethod && data.ScriptMethod) {
+        script.push("# --- ScriptMethod (Functions) ---");
+        data.ScriptMethod.forEach(m => {
+          let addr = "0x" + m.Address.toString(16);
+          let name = sanitize(m.Name);
+          let sig = m.Signature ? m.Signature.replace(/"/g, '\\"') : "Method";
+          script.push(`af ${addr}`);
+          script.push(`afn ${name} @ ${addr}`);
+          script.push(`f sym.method.${name} @ ${addr}`);
+          script.push(`CC "${sig}" @ ${addr}`);
+        });
+        script.push("");
+      }
+
+      if (config.ScriptString && data.ScriptString) {
+        script.push("# --- ScriptString (Strings) ---");
+        data.ScriptString.forEach(s => {
+          let addr = "0x" + s.Address.toString(16);
+          let val = s.Value ? s.Value.replace(/[^a-zA-Z0-9_ -=+!@#$%^&*()]/g, '_') : "str";
+          script.push(`CC "str:${val}" @ ${addr}`);
+        });
+        script.push("");
+      }
+
+      if (config.ScriptMetadata && data.ScriptMetadata) {
+        script.push("# --- ScriptMetadata ---");
+        data.ScriptMetadata.forEach(m => {
+          let addr = "0x" + m.Address.toString(16);
+          let name = sanitize(m.Name);
+          script.push(`f sym.meta.${name} @ ${addr}`);
+        });
+        script.push("");
+      }
+
+      if (config.ScriptMetadataMethod && data.ScriptMetadataMethod) {
+        script.push("# --- ScriptMetadataMethod ---");
+        data.ScriptMetadataMethod.forEach(m => {
+          if (m.MethodAddress > 0) {
+            let methodAddr = "0x" + m.MethodAddress.toString(16);
+            let name = sanitize(m.Name);
+            script.push(`f sym.meta_func.${name} @ ${methodAddr}`);
+          }
+        });
+        script.push("");
+      }
+
+      if (config.Addresses && data.Addresses) {
+        script.push("# --- Addresses ---");
+        data.Addresses.forEach(a => {
+          let addr = "0x" + a.toString(16);
+          script.push(`f sym.il2cpp_ptr_${addr} @ ${addr}`);
+        });
+        script.push("");
+      }
+
+      return script.join('\n');
+    }
+
+    function startConversion() {
       safeCall(() => {
         const soPath = document.getElementById('soPath').value.trim();
         const metaPath = document.getElementById('metaPath').value.trim();
@@ -378,15 +502,15 @@ echo "[*] Dumper 进程结束, 退出码: $?"
 
             // 实时读取终端输出
             const dumperLog = host().procRead(SESSION_ID, 100, 200);
-            if(dumperLog && dumperLog.trim() !== '') {
-               appendLog(dumperLog);
+            if (dumperLog && dumperLog.trim() !== '') {
+              appendLog(dumperLog);
             }
 
             // 尝试读取生成的 script.json
             let jsonContent = null;
             try {
               jsonContent = host().readText('data/script.json');
-            } catch(e) { /* 文件尚未生成 */ }
+            } catch (e) { /* 文件尚未生成 */ }
 
             // 检查底层进程是否已死
             const isAliveStr = host().procAlive(SESSION_ID);
@@ -416,7 +540,7 @@ echo "[*] Dumper 进程结束, 退出码: $?"
                 setStatus(false, '转换成功');
                 setLastAction('执行完毕');
 
-              } catch(e) {
+              } catch (e) {
                 appendLog('[-] 转换失败: ' + e.message);
                 setStatus(false, '转换失败');
                 setLastAction('发生异常');
@@ -440,7 +564,7 @@ echo "[*] Dumper 进程结束, 退出码: $?"
 
       });
     }
-</script>
+  </script>
 
 </body>
 
