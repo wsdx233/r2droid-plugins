@@ -83,6 +83,37 @@
       gap: 16px;
     }
 
+    .header-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .lang-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lang-label {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .lang-select {
+      min-height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--md-sys-color-outline);
+      background: var(--md-sys-color-surface-container);
+      color: var(--md-sys-color-on-surface);
+      padding: 0 10px;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+
     h1 {
       margin: 0;
       font-size: 22px;
@@ -167,6 +198,36 @@
 
     input[type="text"]:focus {
       border-color: var(--md-sys-color-primary);
+    }
+
+    .input-with-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .input-with-btn input[type="text"] {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ghost-btn {
+      min-height: 42px;
+      border-radius: 12px;
+      border: 1px solid var(--md-sys-color-outline);
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+      opacity: 0.9;
     }
 
     /* 复选框网格 */
@@ -277,26 +338,49 @@
 
     <section class="card">
       <div class="header-area">
-        <h1>Il2Cpp R2 Script Generator</h1>
-        <div class="status-pill">
-          <span id="dot" class="dot"></span>
-          <span id="statusText">等待输入</span>
+        <h1 data-i18n="title.main">Il2Cpp R2 Script Generator</h1>
+        <div class="header-right">
+          <div class="status-pill">
+            <span id="dot" class="dot"></span>
+            <span id="statusText" data-i18n="status.waiting_input">等待输入</span>
+          </div>
+          <div class="lang-wrap">
+            <label class="lang-label" for="langSelect" data-i18n="label.language">语言</label>
+            <select id="langSelect" class="lang-select" onchange="onLanguageChange(this.value)">
+              <option value="zh">中文</option>
+              <option value="en">English</option>
+            </select>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="card">
-      <h2>1. 文件路径配置</h2>
+      <h2 data-i18n="section.paths">1. 文件路径配置</h2>
       <div class="form-group">
-        <label>外部 SO 文件绝对路径 (libil2cpp.so)</label>
-        <input type="text" id="soPath" placeholder="/sdcard/Download/libil2cpp.so" />
+        <label data-i18n="label.so_path">外部 SO 文件绝对路径 (libil2cpp.so)</label>
+        <div class="input-with-btn">
+          <input type="text" id="soPath" placeholder="/sdcard/Download/libil2cpp.so" />
+          <button type="button" class="ghost-btn" onclick="pickInputFile('soPath')" data-i18n="btn.open_file">打开文件</button>
+        </div>
       </div>
       <div class="form-group">
-        <label>Global-Metadata 文件绝对路径 (global-metadata.dat)</label>
-        <input type="text" id="metaPath" placeholder="/sdcard/Download/global-metadata.dat" />
+        <label data-i18n="label.meta_path">Global-Metadata 文件绝对路径 (global-metadata.dat)</label>
+        <div class="input-with-btn">
+          <input type="text" id="metaPath" placeholder="/sdcard/Download/global-metadata.dat" />
+          <button type="button" class="ghost-btn" onclick="pickInputFile('metaPath')" data-i18n="btn.open_file">打开文件</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label data-i18n="label.output_path">输出脚本路径</label>
+        <div class="input-with-btn">
+          <input type="text" id="outputPath" placeholder="/data/user/0/xxx/result/result.r2" />
+          <button type="button" class="ghost-btn" onclick="pickOutputDirectory()" data-i18n="btn.choose_folder">选择文件夹</button>
+        </div>
+        <div class="hint" data-i18n="hint.output_folder">选择文件夹后会自动追加默认文件名 result.r2，支持手动修改文件名。</div>
       </div>
 
-      <h2 style="margin-top: 24px;">2. 提取脚本选项 (R2 Flags & Comments)</h2>
+      <h2 style="margin-top: 24px;" data-i18n="section.options">2. 提取脚本选项 (R2 Flags & Comments)</h2>
       <div class="checkbox-grid">
         <label class="checkbox-item"><input type="checkbox" id="chk_ScriptMethod" checked> ScriptMethod</label>
         <label class="checkbox-item"><input type="checkbox" id="chk_ScriptString" checked> ScriptString</label>
@@ -307,58 +391,300 @@
       </div>
 
       <div class="actions">
-        <button class="primary" id="btnRun" onclick="startConversion()">执行提取与转换</button>
+        <button class="primary" id="btnRun" onclick="startConversion()" data-i18n="btn.run">执行提取与转换</button>
       </div>
     </section>
 
     <section class="card">
       <div class="console-header">
-        <span>执行日志 (Logs)</span>
-        <span class="tag" id="lastAction">Ready</span>
+        <span data-i18n="console.logs">执行日志 (Logs)</span>
+        <span class="tag" id="lastAction" data-i18n="tag.ready" data-pristine-action="1">Ready</span>
       </div>
-      <pre id="out">Ready to convert...</pre>
+      <pre id="out" data-i18n="out.ready_convert" data-pristine="1">Ready to convert...</pre>
     </section>
   </div>
 
   <script>
     const SESSION_ID = 'il2cpp-dumper-session';
     let checkInterval = null;
+    let currentLang = 'zh';
+
+    const I18N = {
+      zh: {
+        'doc.title': 'Il2Cpp 转 R2 脚本',
+        'title.main': 'Il2Cpp R2 脚本生成器',
+        'label.language': '语言',
+        'status.waiting_input': '等待输入',
+        'status.converting': '转换中...',
+        'status.ready': '就绪',
+        'status.preparing': '环境准备中...',
+        'status.dumper_running': 'Dumper 运行中...',
+        'status.parsing': '解析转换中...',
+        'status.success_exec': '转换并执行成功',
+        'status.failed': '转换失败',
+        'status.exec_failed': '执行失败',
+        'status.timeout_failed': '超时失败',
+        'section.paths': '1. 文件路径配置',
+        'label.so_path': '外部 SO 文件绝对路径 (libil2cpp.so)',
+        'label.meta_path': 'Global-Metadata 文件绝对路径 (global-metadata.dat)',
+        'label.output_path': '输出脚本路径',
+        'btn.open_file': '打开文件',
+        'btn.choose_folder': '选择文件夹',
+        'hint.output_folder': '选择文件夹后会自动追加默认文件名 result.r2，支持手动修改文件名。',
+        'section.options': '2. 提取脚本选项 (R2 Flags & Comments)',
+        'btn.run': '执行提取与转换',
+        'console.logs': '执行日志 (Logs)',
+        'tag.ready': '就绪',
+        'out.ready_convert': '准备开始转换...',
+
+        'action.input_selected': '已选择输入文件',
+        'action.pick_file_failed': '选择文件失败',
+        'action.output_dir_selected': '已选择输出目录',
+        'action.pick_dir_failed': '选择目录失败',
+        'action.exception': '发生异常',
+        'action.wait_dumper': '等待 Il2CppDumper 执行完毕',
+        'action.done': '执行完毕',
+        'action.exec_error': '执行异常',
+        'action.timeout': '执行超时',
+
+        'log.selected_file': '[+] 已选择文件: {path}',
+        'log.pick_file_failed': '[-] 选择文件失败: {reason}',
+        'log.selected_output_dir': '[+] 已选择输出目录: {path}',
+        'log.pick_dir_failed': '[-] 选择目录失败: {reason}',
+        'log.error_prefix': '[-] Error: {error}',
+        'log.start': '--- 开始执行 Il2Cpp 提取与转换 ---',
+        'log.exec_start': '[*] 启动执行: {cmd}',
+        'log.detected_script_json': '[+] 检测到 script.json 成功生成，开始解析...',
+        'warn.copy_maybe_failed': '[-] 警告: 输出复制阶段可能失败，详情如下:',
+        'warn.fallback_run_path': '[!] 回退执行路径: {path}',
+        'log.done': '[+] 转换完毕!',
+        'log.target_output_path': '[+] 目标输出路径:\n{path}',
+        'log.actual_exec_path': '[+] 实际执行路径:\n{path}',
+        'log.auto_exec': '[+] 已自动在当前项目执行: . "{path}"',
+        'log.r2_echo': '[+] R2 回显:\n{output}',
+
+        'err.parse_script_json': '解析 script.json 失败: {error}',
+        'err.input_required': '[!] 错误: 请输入完整的 SO 和 Metadata 文件路径。',
+        'err.output_invalid': '[!] 错误: 输出路径无效。',
+        'err.convert_failed': '[-] 转换失败: {error}',
+        'err.proc_exit_no_file': '[-] 错误: 进程已退出，但未找到生成的 script.json，请检查上方日志是否报错。',
+        'err.timeout': '[-] 错误: 提取超时 (60s)，未能生成 script.json。',
+        'err.host_unavailable': '宿主接口 R2PluginHost 不可用'
+      },
+      en: {
+        'doc.title': 'Il2Cpp to R2 Script',
+        'title.main': 'Il2Cpp R2 Script Generator',
+        'label.language': 'Language',
+        'status.waiting_input': 'Waiting for input',
+        'status.converting': 'Converting...',
+        'status.ready': 'Ready',
+        'status.preparing': 'Preparing environment...',
+        'status.dumper_running': 'Dumper running...',
+        'status.parsing': 'Parsing and converting...',
+        'status.success_exec': 'Converted & executed',
+        'status.failed': 'Conversion failed',
+        'status.exec_failed': 'Execution failed',
+        'status.timeout_failed': 'Timed out',
+        'section.paths': '1. Path Configuration',
+        'label.so_path': 'SO absolute path (libil2cpp.so)',
+        'label.meta_path': 'Global-Metadata absolute path (global-metadata.dat)',
+        'label.output_path': 'Output script path',
+        'btn.open_file': 'Open File',
+        'btn.choose_folder': 'Choose Folder',
+        'hint.output_folder': 'After choosing a folder, default filename result.r2 is appended automatically, and can be edited.',
+        'section.options': '2. Script Options (R2 Flags & Comments)',
+        'btn.run': 'Run Extract & Convert',
+        'console.logs': 'Execution Logs',
+        'tag.ready': 'Ready',
+        'out.ready_convert': 'Ready to convert...',
+
+        'action.input_selected': 'Input file selected',
+        'action.pick_file_failed': 'File selection failed',
+        'action.output_dir_selected': 'Output directory selected',
+        'action.pick_dir_failed': 'Directory selection failed',
+        'action.exception': 'Exception occurred',
+        'action.wait_dumper': 'Waiting for Il2CppDumper to finish',
+        'action.done': 'Finished',
+        'action.exec_error': 'Execution error',
+        'action.timeout': 'Execution timeout',
+
+        'log.selected_file': '[+] Selected file: {path}',
+        'log.pick_file_failed': '[-] Failed to select file: {reason}',
+        'log.selected_output_dir': '[+] Selected output directory: {path}',
+        'log.pick_dir_failed': '[-] Failed to select directory: {reason}',
+        'log.error_prefix': '[-] Error: {error}',
+        'log.start': '--- Start Il2Cpp extraction and conversion ---',
+        'log.exec_start': '[*] Launching command: {cmd}',
+        'log.detected_script_json': '[+] script.json detected, start parsing...',
+        'warn.copy_maybe_failed': '[-] Warning: output copy may have failed, details:',
+        'warn.fallback_run_path': '[!] Fallback execution path: {path}',
+        'log.done': '[+] Conversion completed!',
+        'log.target_output_path': '[+] Target output path:\n{path}',
+        'log.actual_exec_path': '[+] Actual execution path:\n{path}',
+        'log.auto_exec': '[+] Auto executed in current project: . "{path}"',
+        'log.r2_echo': '[+] R2 output:\n{output}',
+
+        'err.parse_script_json': 'Failed to parse script.json: {error}',
+        'err.input_required': '[!] Error: please provide both SO and Metadata paths.',
+        'err.output_invalid': '[!] Error: output path is invalid.',
+        'err.convert_failed': '[-] Conversion failed: {error}',
+        'err.proc_exit_no_file': '[-] Error: process exited but script.json was not generated. Please check logs above.',
+        'err.timeout': '[-] Error: extraction timed out (60s), script.json was not generated.',
+        'err.host_unavailable': 'Host bridge R2PluginHost is not available'
+      }
+    };
 
     function now() { return new Date().toLocaleTimeString(); }
 
-    function setLastAction(text) {
-      document.getElementById('lastAction').textContent = `[${now()}] ${text}`;
+    function detectInitialLanguage() {
+      let hostLang = '';
+      try {
+        if (window.R2PluginHost && typeof window.R2PluginHost.systemLanguage === 'function') {
+          hostLang = window.R2PluginHost.systemLanguage();
+        }
+      } catch (_) { }
+
+      const tag = String(hostLang || navigator.language || 'en').toLowerCase();
+      return tag.startsWith('zh') ? 'zh' : 'en';
     }
 
-    function setStatus(running, text) {
+    function t(key, vars = {}) {
+      const dict = I18N[currentLang] || I18N.zh;
+      const fallback = I18N.en;
+      const hasPrimary = Object.prototype.hasOwnProperty.call(dict, key);
+      const hasFallback = Object.prototype.hasOwnProperty.call(fallback, key);
+      const template = hasPrimary ? dict[key] : (hasFallback ? fallback[key] : key);
+      return String(template).replace(/\{(\w+)\}/g, (_, name) => {
+        return Object.prototype.hasOwnProperty.call(vars, name)
+          ? String(vars[name])
+          : `{${name}}`;
+      });
+    }
+
+    function applyI18n() {
+      document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+      document.title = t('doc.title');
+
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        if (el.id === 'lastAction' && el.dataset.pristineAction !== '1') return;
+        if (el.id === 'out' && el.dataset.pristine !== '1') return;
+        const key = el.getAttribute('data-i18n');
+        if (!key) return;
+        el.textContent = t(key);
+      });
+
+      const langSelect = document.getElementById('langSelect');
+      if (langSelect) {
+        langSelect.value = currentLang;
+      }
+    }
+
+    function onLanguageChange(lang) {
+      currentLang = String(lang || '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+      applyI18n();
+    }
+
+    function normalizePath(path) {
+      return String(path || '').replace(/\\/g, '/').replace(/\/+/g, '/').trim();
+    }
+
+    function safeSessionIdFromPath(path) {
+      const normalized = normalizePath(path);
+      const fileName = normalized.split('/').filter(Boolean).pop() || 'result.r2';
+      return ('il2cpp-apply-' + fileName.replace(/[^a-zA-Z0-9_\-\.]/g, '_')).slice(0, 64);
+    }
+
+    function escapeForDoubleQuotes(str) {
+      return String(str || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    }
+
+    function joinPath(dir, name) {
+      const base = normalizePath(dir).replace(/\/$/, '');
+      const file = String(name || '').trim().replace(/^\/+/, '');
+      return base && file ? `${base}/${file}` : (base || file);
+    }
+
+    function ensureDefaultOutputPath() {
+      const outputEl = document.getElementById('outputPath');
+      if (!outputEl.value.trim()) {
+        const base = safeCall(() => host().dataDir()) || '';
+        outputEl.value = joinPath(base, 'result.r2');
+      }
+    }
+
+    function pickInputFile(targetInputId) {
+      safeCall(() => {
+        const picked = host().pickFile(`pick-${targetInputId}-${Date.now()}`);
+        if (picked && !String(picked).startsWith('Error:')) {
+          document.getElementById(targetInputId).value = normalizePath(picked);
+          appendLog(t('log.selected_file', { path: picked }));
+          setLastAction(t('action.input_selected'));
+        } else {
+          appendLog(t('log.pick_file_failed', { reason: picked }));
+          setLastAction(t('action.pick_file_failed'));
+        }
+      });
+    }
+
+    function pickOutputDirectory() {
+      safeCall(() => {
+        const picked = host().pickDirectory(`pick-output-dir-${Date.now()}`);
+        if (picked && !String(picked).startsWith('Error:')) {
+          const outputEl = document.getElementById('outputPath');
+          outputEl.value = joinPath(picked, 'result.r2');
+          appendLog(t('log.selected_output_dir', { path: picked }));
+          setLastAction(t('action.output_dir_selected'));
+        } else {
+          appendLog(t('log.pick_dir_failed', { reason: picked }));
+          setLastAction(t('action.pick_dir_failed'));
+        }
+      });
+    }
+
+    function setLastAction(text) {
+      const el = document.getElementById('lastAction');
+      el.dataset.pristineAction = '0';
+      el.textContent = `[${now()}] ${text}`;
+    }
+
+    function setStatus(running, textKey) {
       const dot = document.getElementById('dot');
       const statusText = document.getElementById('statusText');
+      const key = textKey || (running ? 'status.converting' : 'status.ready');
+      statusText.setAttribute('data-i18n', key);
       if (running) {
         dot.classList.add('running');
-        statusText.textContent = text || '转换中...';
+        statusText.textContent = t(key);
         document.getElementById('btnRun').disabled = true;
       } else {
         dot.classList.remove('running');
-        statusText.textContent = text || '就绪';
+        statusText.textContent = t(key);
         document.getElementById('btnRun').disabled = false;
       }
     }
 
     function appendLog(text) {
       const out = document.getElementById('out');
-      if (out.textContent.includes('Ready to convert...')) out.textContent = '';
+      if (out.dataset.pristine === '1') {
+        out.textContent = '';
+        out.dataset.pristine = '0';
+      }
       out.textContent += text + '\n';
       out.scrollTop = out.scrollHeight;
     }
 
     function host() {
-      if (!window.R2PluginHost) throw new Error('R2PluginHost is not available');
+      if (!window.R2PluginHost) throw new Error(t('err.host_unavailable'));
       return window.R2PluginHost;
     }
 
     function safeCall(fn) {
       try { return fn(); }
-      catch (e) { appendLog('[-] Error: ' + e); setLastAction('发生异常'); return null; }
+      catch (e) {
+        appendLog(t('log.error_prefix', { error: e }));
+        setLastAction(t('action.exception'));
+        return null;
+      }
     }
 
     // 格式化 R2 兼容的名称
@@ -370,7 +696,8 @@
     // JSON 转 R2 脚本逻辑
     function generateR2Script(jsonStr, config) {
       let data;
-      try { data = JSON.parse(jsonStr); } catch (e) { throw new Error("解析 script.json 失败: " + e.message); }
+      try { data = JSON.parse(jsonStr); }
+      catch (e) { throw new Error(t('err.parse_script_json', { error: e.message })); }
 
       let script = ["# Il2Cpp Dumper R2 Script", "e asm.comments=true", ""];
 
@@ -434,11 +761,22 @@
 
     function startConversion() {
       safeCall(() => {
-        const soPath = document.getElementById('soPath').value.trim();
-        const metaPath = document.getElementById('metaPath').value.trim();
+        const soPath = normalizePath(document.getElementById('soPath').value);
+        const metaPath = normalizePath(document.getElementById('metaPath').value);
+        let outputPath = normalizePath(document.getElementById('outputPath').value);
 
         if (!soPath || !metaPath) {
-          appendLog('[!] 错误: 请输入完整的 SO 和 Metadata 文件路径。');
+          appendLog(t('err.input_required'));
+          return;
+        }
+
+        if (!outputPath) {
+          ensureDefaultOutputPath();
+          outputPath = normalizePath(document.getElementById('outputPath').value);
+        }
+
+        if (!outputPath) {
+          appendLog(t('err.output_invalid'));
           return;
         }
 
@@ -451,9 +789,11 @@
         };
 
         // 清空旧日志
-        document.getElementById('out').textContent = '';
-        appendLog('--- 开始执行 Il2Cpp 提取与转换 ---');
-        setStatus(true, '环境准备中...');
+        const out = document.getElementById('out');
+        out.textContent = '';
+        out.dataset.pristine = '0';
+        appendLog(t('log.start'));
+        setStatus(true, 'status.preparing');
 
         // 关键修复：直接动态生成一个 Shell 脚本文件，完全避开 ProcessBuilder 的引号解析问题
         const shScriptCode = `#!/system/bin/sh
@@ -483,13 +823,13 @@ echo "[*] Dumper 进程结束, 退出码: $?"
         host().procStop(SESSION_ID);
 
         // 执行这个脚本，通过双引号传递路径参数，ProcessBuilder 能完美处理这种结构
-        const execCmd = `sh ./data/run_dumper.sh "${soPath}" "${metaPath}"`;
-        appendLog('[*] 启动执行: ' + execCmd);
+        const execCmd = `sh ./data/run_dumper.sh "${escapeForDoubleQuotes(soPath)}" "${escapeForDoubleQuotes(metaPath)}"`;
+        appendLog(t('log.exec_start', { cmd: execCmd }));
 
         host().procStart(SESSION_ID, execCmd);
 
-        setLastAction('等待 Il2CppDumper 执行完毕');
-        setStatus(true, 'Dumper 运行中...');
+        setLastAction(t('action.wait_dumper'));
+        setStatus(true, 'status.dumper_running');
 
         let attempts = 0;
         const maxAttempts = 60; // 60秒超时
@@ -518,52 +858,91 @@ echo "[*] Dumper 进程结束, 退出码: $?"
 
             if (jsonContent && jsonContent.length > 50) {
               clearInterval(checkInterval);
-              appendLog('[+] 检测到 script.json 成功生成，开始解析...');
-              setStatus(true, '解析转换中...');
+              appendLog(t('log.detected_script_json'));
+              setStatus(true, 'status.parsing');
 
               host().procStop(SESSION_ID);
 
               try {
                 const r2Script = generateR2Script(jsonContent, config);
-                host().writeData('result/il2cpp.r2', r2Script);
 
-                const dataDirAbs = host().dataDir();
-                const absoluteOutputPath = dataDirAbs + '/result/il2cpp.r2';
+                // 输出到用户指定路径（先写到插件 data，再复制到目标绝对路径）
+                const rawOutputName = normalizePath(outputPath).split('/').filter(Boolean).pop() || 'result.r2';
+                const outputFileName = rawOutputName.replace(/[\/\\]/g, '') || 'result.r2';
+                host().writeData(outputFileName, r2Script);
+
+                const writeScriptCode = `#!/system/bin/sh
+TARGET_PATH="$1"
+SOURCE_NAME="$2"
+mkdir -p "$(dirname "$TARGET_PATH")" || exit 1
+cp "./data/$SOURCE_NAME" "$TARGET_PATH" || exit 1
+echo "ok"
+`;
+                host().writeData('write_output.sh', writeScriptCode);
+                const writeSessionId = safeSessionIdFromPath(outputPath);
+                host().procStop(writeSessionId);
+                const writeCmd = `sh ./data/write_output.sh "${escapeForDoubleQuotes(outputPath)}" "${escapeForDoubleQuotes(outputFileName)}"`;
+                host().procStart(writeSessionId, writeCmd);
+                const writeLog = host().procRead(writeSessionId, 1500, 200);
+                host().procStop(writeSessionId);
+
+                const writeLogText = String(writeLog || '').toLowerCase();
+                const copyMaybeFailed = writeLogText.includes('error') || writeLogText.includes('exit') || !writeLogText.includes('ok');
+                if (copyMaybeFailed) {
+                  appendLog(t('warn.copy_maybe_failed'));
+                  appendLog(writeLog || '(empty)');
+                }
+
+                // 自动在当前项目执行脚本（复制失败时回退到插件 data 目录脚本）
+                const pluginDataOutputPath = joinPath(host().dataDir(), outputFileName);
+                const scriptPathForRun = copyMaybeFailed ? pluginDataOutputPath : outputPath;
+                if (copyMaybeFailed) {
+                  appendLog(t('warn.fallback_run_path', { path: scriptPathForRun }));
+                }
+
+                const runCmd = `. "${escapeForDoubleQuotes(scriptPathForRun)}" ; iIj`;
+                const runResult = host().r2(runCmd);
 
                 appendLog(`\n[===================================]`);
-                appendLog(`[+] 转换完毕!`);
-                appendLog(`[+] 脚本绝对路径:\n${absoluteOutputPath}`);
-                appendLog(`\n[*] 使用说明: 在 R2Droid 终端或下方命令框中输入以下命令加载:`);
-                appendLog(`. ${absoluteOutputPath}`);
+                appendLog(t('log.done'));
+                appendLog(t('log.target_output_path', { path: outputPath }));
+                appendLog(t('log.actual_exec_path', { path: scriptPathForRun }));
+                appendLog(t('log.auto_exec', { path: scriptPathForRun }));
+                appendLog(t('log.r2_echo', { output: runResult }));
                 appendLog(`[===================================]`);
 
-                setStatus(false, '转换成功');
-                setLastAction('执行完毕');
+                setStatus(false, 'status.success_exec');
+                setLastAction(t('action.done'));
 
               } catch (e) {
-                appendLog('[-] 转换失败: ' + e.message);
-                setStatus(false, '转换失败');
-                setLastAction('发生异常');
+                appendLog(t('err.convert_failed', { error: e.message }));
+                setStatus(false, 'status.failed');
+                setLastAction(t('action.exception'));
               }
             } else if (!isAlive && attempts > 3) {
               // 进程死掉且没出文件
               clearInterval(checkInterval);
-              appendLog('[-] 错误: 进程已退出，但未找到生成的 script.json，请检查上方日志是否报错。');
-              setStatus(false, '执行失败');
-              setLastAction('执行异常');
+              appendLog(t('err.proc_exit_no_file'));
+              setStatus(false, 'status.exec_failed');
+              setLastAction(t('action.exec_error'));
             } else if (attempts >= maxAttempts) {
               // 超时
               clearInterval(checkInterval);
-              appendLog('[-] 错误: 提取超时 (60s)，未能生成 script.json。');
+              appendLog(t('err.timeout'));
               host().procStop(SESSION_ID);
-              setStatus(false, '超时失败');
-              setLastAction('执行超时');
+              setStatus(false, 'status.timeout_failed');
+              setLastAction(t('action.timeout'));
             }
           });
         }, 1000);
 
       });
     }
+
+    // 初始化默认语言与默认输出路径
+    currentLang = detectInitialLanguage();
+    applyI18n();
+    ensureDefaultOutputPath();
   </script>
 
 </body>
