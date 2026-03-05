@@ -15,11 +15,11 @@
     {
       "id": "il2cpp-r2",
       "name": "R2 Il2CPP Dumper",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "dump il2cpp to r2 script",
       "author": "Wsdx233",
       "downloadUrl": "https://github.com/wsdx233/r2droid-plugins/releases/download/v1.0.0/il2cpp-r2.zip",
-      "sha256": "921fa18484ccdb345bbe45b7930e0b0ff5e20b2b7fcf6c04b24c5f4cb1ca5893",
+      "sha256": "6221674327dcfdf5a52d604d5c31e1f181fe2ad51a3552465a146d14f36eff67",
       "manifestPath": "manifest.json"
     }
   ]
