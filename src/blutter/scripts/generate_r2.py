@@ -1,0 +1,217 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+import ast, base64, re, sys
+from pathlib import Path
+from collections import OrderedDict
+
+NUM = r"(?:0x[0-9a-fA-F]+|\d+)"
+ADD_FUNC_RE = re.compile(rf"ida_funcs\.add_func\(\s*({NUM})\s*,\s*({NUM})\s*\)")
+SET_NAME_RE = re.compile(rf"idaapi\.set_name\(\s*({NUM})\s*,\s*((?:\"(?:\\.|[^\"\\])*\")|(?:'(?:\\.|[^'\\])*'))\s*\)")
+PP_BASE_RE = re.compile(r"pool heap offset:\s*(0x[0-9a-fA-F]+|\d+)")
+PP_ENTRY_RE = re.compile(rf"^\[pp\+({NUM})\]\s*(.*)$", re.I)
+
+
+def pint(s: str) -> int:
+    s = str(s).strip()
+    if s.startswith('-0x'):
+        return -int(s[3:], 16)
+    return int(s, 0)
+
+
+def safe_literal(s: str) -> str:
+    try:
+        return ast.literal_eval(s)
+    except Exception:
+        return s.strip('"\'')
+
+
+def r2_name(name: str, prefix: str = 'sym.') -> str:
+    n = name.strip().replace('::', '__').replace('<', '_lt_').replace('>', '_gt_').replace('@', '_at_')
+    n = re.sub(r'[^A-Za-z0-9_.$]+', '_', n)
+    n = re.sub(r'_+', '_', n).strip('_') or 'unnamed'
+    if n[0].isdigit():
+        n = '_' + n
+    return n if n.startswith(('sym.', 'fcn.', 'objpool.', 'dart.')) else prefix + n
+
+
+def unique_name(name: str, used: set[str], addr: int) -> str:
+    if name not in used:
+        used.add(name)
+        return name
+    candidate = f'{name}_{addr:x}'
+    if candidate not in used:
+        used.add(candidate)
+        return candidate
+    i = 2
+    while f'{candidate}_{i}' in used:
+        i += 1
+    candidate = f'{candidate}_{i}'
+    used.add(candidate)
+    return candidate
+
+
+def b64(text: str) -> str:
+    return base64.b64encode(text.encode('utf-8', 'replace')).decode('ascii')
+
+
+def parse_ida_add_names(root: Path):
+    """Parse blutter's ida_script/addNames.py and translate the useful IDA actions.
+
+    Blutter already emits the best static symbols into this IDAPython file.  For r2
+    we keep two concepts:
+      * ida_funcs.add_func(start, end) -> af/afu/afn
+      * idaapi.set_name(addr, name)    -> function name when addr is a function
+                                      -> normal flag for helper/check/miss stubs
+    """
+    script = root / 'ida_script' / 'addNames.py'
+    funcs: list[tuple[int, int]] = []
+    names: "OrderedDict[int, list[str]]" = OrderedDict()
+    if not script.is_file():
+        return funcs, names, script
+
+    with script.open('r', encoding='utf-8', errors='replace') as fh:
+        for line in fh:
+            m = ADD_FUNC_RE.search(line)
+            if m:
+                funcs.append((pint(m.group(1)), pint(m.group(2))))
+                continue
+            m = SET_NAME_RE.search(line)
+            if m:
+                addr = pint(m.group(1))
+                # IDA accepts BADADDR/0 helper names, but they are not useful flags in r2.
+                if addr == 0:
+                    continue
+                name = safe_literal(m.group(2))
+                names.setdefault(addr, [])
+                if name not in names[addr]:
+                    names[addr].append(name)
+    return funcs, names, script
+
+
+def parse_pp(root: Path, limit: int = 200000):
+    pp = root / 'pp.txt'
+    if not pp.is_file():
+        return None, []
+    base = None
+    entries = []
+    off = None
+    buf: list[str] = []
+
+    def flush():
+        nonlocal off, buf
+        if off is None:
+            return
+        text = '\n'.join(buf).rstrip()
+        entries.append((off, text))
+        off = None
+        buf = []
+
+    with pp.open('r', encoding='utf-8', errors='replace') as fh:
+        for raw in fh:
+            raw = raw.rstrip('\n')
+            if base is None:
+                bm = PP_BASE_RE.search(raw)
+                if bm:
+                    base = pint(bm.group(1))
+            m = PP_ENTRY_RE.match(raw)
+            if m:
+                flush()
+                off = pint(m.group(1))
+                buf = [m.group(2)]
+                if len(entries) >= limit:
+                    break
+            elif off is not None:
+                buf.append(raw)
+    flush()
+    return base, entries
+
+
+def best_func_name(names_at_addr: list[str] | None, addr: int) -> str:
+    ns = names_at_addr or []
+    return next(
+        (n for n in ns if not n.endswith(('_miss', '_check'))),
+        ns[0] if ns else f'fcn_{addr:x}'
+    )
+
+
+def main() -> int:
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+    if len(sys.argv) < 2:
+        print('usage: generate_r2.py <blutter-output-dir>', file=sys.stderr)
+        return 2
+    root = Path(sys.argv[1]).expanduser().resolve()
+    if not root.is_dir():
+        print(f'output dir not found: {root}', file=sys.stderr)
+        return 2
+
+    funcs, names, ida_script = parse_ida_add_names(root)
+    pp_base, pp_entries = parse_pp(root)
+    func_starts = {start for start, _ in funcs if start != 0}
+    used_flags: set[str] = set()
+
+    out = [
+        '# Generated by R2Droid Blutter plugin',
+        f'# Source: {root}',
+        f'# IDA script: {ida_script if ida_script.is_file() else "not found"}',
+        f'# Functions from ida_funcs.add_func: {len(funcs)}',
+        f'# Names from idaapi.set_name: {sum(len(v) for v in names.values())}',
+        'e scr.utf8=true',
+        'e asm.comments=true',
+        ''
+    ]
+
+    # First create/rename functions exactly from Blutter's IDAPython add_func list.
+    emitted_funcs = set()
+    primary_func_names: dict[int, str] = {}
+    for start, end in funcs:
+        if start == 0 or start in emitted_funcs:
+            continue
+        emitted_funcs.add(start)
+        raw_name = best_func_name(names.get(start), start)
+        primary_func_names[start] = raw_name
+        name = unique_name(r2_name(raw_name), used_flags, start)
+        out.append(f'af @ 0x{start:x}')
+        out.append(f'afn {name} @ 0x{start:x}')
+        if end > start:
+            out.append(f'afu 0x{end:x} @ 0x{start:x}')
+
+    # Then translate remaining set_name calls as flags.  This preserves blutter's
+    # *_miss / *_check helper labels and any named stubs.  Do not skip an address just
+    # because it is also a function start: blutter may put many *_check labels on the
+    # same dispatcher/stub address.
+    out.append('')
+    out.append('# Extra labels from idaapi.set_name')
+    for addr, ns in names.items():
+        if addr == 0:
+            continue
+        primary = primary_func_names.get(addr)
+        for raw_name in ns:
+            if primary is not None and raw_name == primary:
+                continue
+            name = unique_name(r2_name(raw_name), used_flags, addr)
+            out.append(f'f {name} 1 @ 0x{addr:x}')
+
+    # Object-pool comments are not a UI feature anymore, but applying them as r2
+    # comments is cheap and useful when pp.txt is present.
+    if pp_base is not None and pp_entries:
+        out.append('')
+        out.append('# Object pool labels/comments from pp.txt')
+        for off, text in pp_entries:
+            addr = pp_base + off
+            first = text.split('\n', 1)[0]
+            flag = unique_name(f'objpool.pp_{off:x}', used_flags, addr)
+            out.append(f'f {flag} 8 @ 0x{addr:x}')
+            if first:
+                out.append(f'CCu {b64(f"[pp+0x{off:x}] {first}")} @ 0x{addr:x}')
+
+    out.append('')
+    out.append('# end')
+    print('\n'.join(out))
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

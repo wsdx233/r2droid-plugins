@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-03-02T00:00:00Z",
+  "generatedAt": "2026-04-27T00:00:00Z",
   "plugins": [
     {
       "id": "r2mcp",
@@ -20,6 +20,16 @@
       "author": "Wsdx233",
       "downloadUrl": "https://github.com/wsdx233/r2droid-plugins/releases/download/v1.0.0/il2cpp-r2.zip",
       "sha256": "6221674327dcfdf5a52d604d5c31e1f181fe2ad51a3552465a146d14f36eff67",
+      "manifestPath": "manifest.json"
+    },
+    {
+      "id": "blutter",
+      "name": "Blutter APK Analyzer",
+      "version": "0.4.0",
+      "description": "Run blutter on Flutter APKs and generate/apply r2 scripts in the current R2Droid project.",
+      "author": "R2Droid",
+      "downloadUrl": "https://github.com/wsdx233/r2droid-plugins/releases/download/v1.0.0/blutter.zip",
+      "sha256": "ce64aea995fae5741043107e9d76db2dfdfedfe8f6b47156ed670589abcd2a81",
       "manifestPath": "manifest.json"
     }
   ]
